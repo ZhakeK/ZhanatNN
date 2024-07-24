@@ -86,7 +86,6 @@ public with sharing class CountryLayerService {
     public static void processCountryData(String responseBody) {
 
         List<Country> countries = (List<Country>) JSON.deserialize(responseBody, List<Country>.class);
-        System.debug('1'+countries);
 
         Map<String, Country__c> currentCountries = getCurrentCountryData();
 
@@ -101,17 +100,15 @@ public with sharing class CountryLayerService {
             }
 
             String regionalBlocsAcronyms = String.join(acronyms, ';');
-            System.debug('regionalBlocsAcronyms'+regionalBlocsAcronyms);
 
             Country__c existingCountry = currentCountries.get(country.alpha2Code);
-            System.debug('2'+existingCountry);
 
             if (existingCountry == null ||
                     existingCountry.Name != country.name ||
                     existingCountry.Alpha3Code__c != country.alpha3Code ||
                     (existingCountry.Capital__c != country.capital && !String.isBlank(country.capital)) ||
                     (existingCountry.Region__c != country.region && !String.isBlank(country.region)) ||
-                    !String.isBlank(regionalBlocsAcronyms)){
+                    (existingCountry.RegionalBlocs__c != regionalBlocsAcronyms &&!String.isBlank(regionalBlocsAcronyms))){
 
                 Country__c countryRecord = new Country__c(
                         Name = country.name,
@@ -124,7 +121,6 @@ public with sharing class CountryLayerService {
                 if (existingCountry != null) {
                     countryRecord.Id = existingCountry.Id;
                 }
-                System.debug('3'+countryRecord);
                 countryRecordsToUpdate.add(countryRecord);
             }
         }
